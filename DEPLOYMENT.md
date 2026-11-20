@@ -23,6 +23,11 @@ Repository: `https://github.com/lemongood000/ML-Drug-Solubility`
 The application only performs inference. It does not need the full training
 dataset, PyTorch, test results, or intermediate OOF prediction files at runtime.
 
+If Streamlit Cloud selects Python 3.14 by default, change the app runtime to
+Python 3.12 in **Manage app > Settings > Advanced settings** and reboot the app.
+The pinned NumPy 1.26, pandas 2.2, scikit-learn 1.5, and PyArrow 17 wheels do
+not support Python 3.14, and source builds currently fail.
+
 ## Local launch
 
 ```powershell
