@@ -1,0 +1,32 @@
+{
+  "source_rows": 1904,
+  "exact_duplicate_rows_removed": 4,
+  "invalid_drug_smiles": 0,
+  "invalid_solvent_smiles": 0,
+  "rows_after_canonicalization": 1900,
+  "condition_groups_before_aggregation": 1785,
+  "repeated_condition_groups": 86,
+  "numeric_conflict_groups": 86,
+  "numeric_conflict_groups_gt_0_05_log": 53,
+  "max_condition_target_range": 3.673785704,
+  "rows_after_aggregation": 1785,
+  "unique_drug_names": 184,
+  "unique_drug_smiles": 168,
+  "unique_solvent_names": 49,
+  "unique_solvent_smiles": 49,
+  "unique_smiles_across_roles": 216,
+  "drug_solvent_pairs": 646,
+  "singleton_drug_solvent_pairs": 449,
+  "missing_values": {
+    "Drug": 0,
+    "Solvent": 0,
+    "Drug SMILES": 0,
+    "Solvent SMILES": 0,
+    "Temperature": 0,
+    "Solubility_log10": 0,
+    "Solubility Unit": 0
+  },
+  "solubility_unit_counts": {
+    "mol/L": 1900
+  }
+}

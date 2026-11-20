@@ -1,0 +1,18 @@
+{
+  "run_name": "mlp_full_interaction_huber",
+  "seeds": "42",
+  "epochs": 120,
+  "patience": 15,
+  "batch_size": 64,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.001,
+  "dropout": 0.2,
+  "encoder_dropout": 0.0,
+  "hidden_dim": 128,
+  "interaction_dim": 32,
+  "architecture": "interaction",
+  "loss": "huber",
+  "drug_bits": 1024,
+  "solvent_bits": 256,
+  "validation_fraction": 0.15
+}

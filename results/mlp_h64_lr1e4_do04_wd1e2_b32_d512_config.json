@@ -1,0 +1,14 @@
+{
+  "run_name": "mlp_h64_lr1e4_do04_wd1e2_b32_d512",
+  "seeds": "42",
+  "epochs": 80,
+  "patience": 10,
+  "batch_size": 32,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.01,
+  "dropout": 0.4,
+  "hidden_dim": 64,
+  "drug_bits": 512,
+  "solvent_bits": 128,
+  "validation_fraction": 0.15
+}

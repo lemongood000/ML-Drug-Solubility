@@ -1,0 +1,15 @@
+{
+  "temperature_c": 25.0,
+  "temperature_tolerance_c": 0.5,
+  "minimum_solvents_per_drug": 4,
+  "evaluated_drugs": 46,
+  "predicted_spearman_median": 0.863970588235294,
+  "predicted_spearman_q25": 0.6838286713286714,
+  "predicted_spearman_q75": 0.942857142857143,
+  "baseline_spearman_median": 0.4446428571428571,
+  "baseline_spearman_q25": 0.19405594405594406,
+  "baseline_spearman_q75": 0.6847402597402596,
+  "predicted_top1_accuracy": 0.5434782608695652,
+  "baseline_top1_accuracy": 0.2608695652173913,
+  "predicted_beats_baseline_fraction": 0.8043478260869565
+}

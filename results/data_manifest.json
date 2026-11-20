@@ -1,0 +1,28 @@
+{
+  "pipeline_version": "1.1.0",
+  "created_at": "2026-11-20T21:03:32+08:00",
+  "config_id": "44ca87accd80",
+  "config": {
+    "source_data": "代码\\data_2026.csv",
+    "source_sha256": "5cf4cecfb556dba5fe10d57ffebe337090cdee07cca6327ec7375cf84c79290d",
+    "clean_rows": 1785,
+    "n_splits": 5,
+    "seed": 42,
+    "group_column": "drug_smiles_canonical"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.2",
+      "joblib": "1.4.2",
+      "scikit-learn": "1.5.1",
+      "rdkit": "2026.9.2",
+      "torch": "2.6.0",
+      "xgboost": "3.4.1",
+      "streamlit": "1.37.1",
+      "matplotlib": "3.9.2"
+    }
+  }
+}

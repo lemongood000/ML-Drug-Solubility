@@ -1,0 +1,36 @@
+{
+  "pipeline_version": "1.1.0",
+  "created_at": "2026-11-19T14:49:00+08:00",
+  "config_id": "190a01801e21",
+  "config": {
+    "experiment": "split_stability",
+    "split_kind": "scaffold",
+    "split_seed": 42,
+    "clean_sha256": "0b8f1558f2aa42dbf7b7f193cbc7a9a333c75bc575a905830b6d4b3e6b80f2af",
+    "folds_sha256": "51459e6e14d53b83da305735fedfc664d09353224af39628ff38bb5d6148a3dc",
+    "feature_config": "all_enhanced_features",
+    "model": "xgboost",
+    "model_seed": 42
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.2",
+      "joblib": "1.4.2",
+      "scikit-learn": "1.5.1",
+      "rdkit": "2026.9.2",
+      "torch": "2.6.0+cpu",
+      "xgboost": "3.4.1",
+      "streamlit": "1.37.1",
+      "matplotlib": "3.9.2"
+    }
+  },
+  "models": [
+    "xgboost"
+  ],
+  "seed": 42,
+  "prediction_rows": 1785,
+  "prediction_file": "predictions.csv"
+}

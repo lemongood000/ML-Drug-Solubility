@@ -1,0 +1,10 @@
+.venv/
+.venv-clean/
+.idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+results/cache/
+dist/
+*.log
+report_assets/*.docx
