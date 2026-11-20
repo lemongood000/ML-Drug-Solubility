@@ -11,10 +11,12 @@ Streamlit deployment can both run from the repository root.
 
 1. Open this folder as a PyCharm project.
 2. Create the environment with `python -m venv .venv`.
-3. Install the pinned environment with
+3. Install the full training environment with
    `.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt`.
 4. Select `.venv\Scripts\python.exe` as the PyCharm interpreter.
 5. Run `run_pipeline.py core` or execute the individual scripts.
+
+For the Streamlit application only, use the lighter `requirements.txt`.
 
 The scripts also run from PowerShell:
 
