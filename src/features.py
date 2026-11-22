@@ -5,7 +5,7 @@ from collections.abc import Callable
 import numpy as np
 import pandas as pd
 from rdkit import Chem, RDLogger
-from rdkit.Chem import Descriptors, rdFingerprintGenerator
+from rdkit.Chem import Descriptors, MACCSkeys, rdFingerprintGenerator
 
 
 RDLogger.DisableLog("rdApp.warning")
@@ -31,6 +31,7 @@ def _molecule_features(
     n_bits: int,
     radius: int,
     prefix: str,
+    include_maccs: bool = False,
 ) -> tuple[list[str], np.ndarray]:
     molecule = Chem.MolFromSmiles(smiles)
     if molecule is None:
@@ -53,7 +54,15 @@ def _molecule_features(
 
     names = [f"{prefix}_morgan_{i:04d}" for i in range(n_bits)]
     names.extend(f"{prefix}_{name}" for name in DESCRIPTORS)
-    return names, np.concatenate([fingerprint, descriptor_values])
+    feature_parts = [fingerprint, descriptor_values]
+    if include_maccs:
+        maccs = np.asarray(
+            list(MACCSkeys.GenMACCSKeys(molecule)),
+            dtype=np.float32,
+        )
+        names.extend(f"{prefix}_maccs_{i:03d}" for i in range(len(maccs)))
+        feature_parts.append(maccs)
+    return names, np.concatenate(feature_parts)
 
 
 def build_feature_matrix(
@@ -65,16 +74,26 @@ def build_feature_matrix(
     include_interactions: bool = False,
     include_physchem_interactions: bool = False,
     include_temperature_interactions: bool = False,
+    include_maccs: bool = False,
+    include_chem_interactions: bool = False,
 ) -> tuple[pd.DataFrame, dict[str, list[str]]]:
     feature_rows: dict[tuple[str, str], tuple[list[str], np.ndarray]] = {}
 
     for smiles in frame["drug_smiles_canonical"].unique():
         feature_rows[("drug", smiles)] = _molecule_features(
-            smiles, n_bits=drug_bits, radius=radius, prefix="drug"
+            smiles,
+            n_bits=drug_bits,
+            radius=radius,
+            prefix="drug",
+            include_maccs=include_maccs,
         )
     for smiles in frame["solvent_smiles_canonical"].unique():
         feature_rows[("solvent", smiles)] = _molecule_features(
-            smiles, n_bits=solvent_bits, radius=radius, prefix="solvent"
+            smiles,
+            n_bits=solvent_bits,
+            radius=radius,
+            prefix="solvent",
+            include_maccs=include_maccs,
         )
 
     drug_features = pd.DataFrame(
@@ -91,9 +110,7 @@ def build_feature_matrix(
             feature_rows[("solvent", smiles)][1]
             for smiles in frame["solvent_smiles_canonical"]
         ],
-        columns=feature_rows[
-            ("solvent", frame["solvent_smiles_canonical"].iloc[0])
-        ][0],
+        columns=feature_rows[("solvent", frame["solvent_smiles_canonical"].iloc[0])][0],
         index=frame.index,
         dtype=np.float32,
     )
@@ -114,6 +131,7 @@ def build_feature_matrix(
     solvent_identity_columns: list[str] = []
     physchem_interaction_columns: list[str] = []
     temperature_interaction_columns: list[str] = []
+    chem_interaction_columns: list[str] = []
 
     if include_solvent_identity:
         solvent_identity = pd.get_dummies(
@@ -139,16 +157,14 @@ def build_feature_matrix(
                     - solvent_features["solvent_mol_logp"]
                 ),
                 "interaction_tpsa_difference": np.abs(
-                    drug_features["drug_tpsa"]
-                    - solvent_features["solvent_tpsa"]
+                    drug_features["drug_tpsa"] - solvent_features["solvent_tpsa"]
                 ),
                 "interaction_logp_product": (
                     drug_features["drug_mol_logp"]
                     * solvent_features["solvent_mol_logp"]
                 ),
                 "interaction_tpsa_product": (
-                    drug_features["drug_tpsa"]
-                    * solvent_features["solvent_tpsa"]
+                    drug_features["drug_tpsa"] * solvent_features["solvent_tpsa"]
                 ),
             },
             index=frame.index,
@@ -157,9 +173,7 @@ def build_feature_matrix(
         physchem_interactions = physchem_interactions.replace(
             [np.inf, -np.inf], 0.0
         ).fillna(0.0)
-        physchem_interaction_columns = (
-            physchem_interactions.columns.tolist()
-        )
+        physchem_interaction_columns = physchem_interactions.columns.tolist()
         extra_features.append(physchem_interactions)
 
     if include_temperature_interactions:
@@ -183,13 +197,71 @@ def build_feature_matrix(
             index=frame.index,
             dtype=np.float32,
         )
-        temperature_interactions = (
-            temperature_interactions.replace([np.inf, -np.inf], 0.0).fillna(0.0)
-        )
-        temperature_interaction_columns = (
-            temperature_interactions.columns.tolist()
-        )
+        temperature_interactions = temperature_interactions.replace(
+            [np.inf, -np.inf], 0.0
+        ).fillna(0.0)
+        temperature_interaction_columns = temperature_interactions.columns.tolist()
         extra_features.append(temperature_interactions)
+
+    if include_chem_interactions:
+        chem_interactions = pd.DataFrame(
+            {
+                "interaction_drug_hbd_solvent_hba": (
+                    drug_features["drug_h_donors"]
+                    * solvent_features["solvent_h_acceptors"]
+                ),
+                "interaction_drug_hba_solvent_hbd": (
+                    drug_features["drug_h_acceptors"]
+                    * solvent_features["solvent_h_donors"]
+                ),
+                "interaction_hbd_difference": np.abs(
+                    drug_features["drug_h_donors"]
+                    - solvent_features["solvent_h_donors"]
+                ),
+                "interaction_hba_difference": np.abs(
+                    drug_features["drug_h_acceptors"]
+                    - solvent_features["solvent_h_acceptors"]
+                ),
+                "interaction_molecular_weight_ratio": (
+                    drug_features["drug_mol_wt"]
+                    / np.maximum(solvent_features["solvent_mol_wt"], 1.0)
+                ),
+            },
+            index=frame.index,
+            dtype=np.float32,
+        )
+        generator = rdFingerprintGenerator.GetMorganGenerator(
+            radius=radius, fpSize=1024
+        )
+        solvent_fingerprints = {
+            smiles: generator.GetFingerprintAsNumPy(Chem.MolFromSmiles(smiles)).astype(
+                bool
+            )
+            for smiles in frame["solvent_smiles_canonical"].unique()
+        }
+        drug_fingerprints = {
+            smiles: generator.GetFingerprintAsNumPy(Chem.MolFromSmiles(smiles)).astype(
+                bool
+            )
+            for smiles in frame["drug_smiles_canonical"].unique()
+        }
+        similarities = []
+        for drug_smiles, solvent_smiles in zip(
+            frame["drug_smiles_canonical"],
+            frame["solvent_smiles_canonical"],
+            strict=True,
+        ):
+            drug_fingerprint = drug_fingerprints[drug_smiles]
+            solvent_fingerprint = solvent_fingerprints[solvent_smiles]
+            intersection = np.logical_and(drug_fingerprint, solvent_fingerprint).sum()
+            union = np.logical_or(drug_fingerprint, solvent_fingerprint).sum()
+            similarities.append(intersection / max(union, 1))
+        chem_interactions["interaction_morgan_tanimoto"] = similarities
+        chem_interactions = chem_interactions.replace([np.inf, -np.inf], 0.0).fillna(
+            0.0
+        )
+        chem_interaction_columns = chem_interactions.columns.tolist()
+        extra_features.append(chem_interactions)
 
     features = pd.concat(
         [drug_features, solvent_features, temperature_features, *extra_features],
@@ -199,8 +271,10 @@ def build_feature_matrix(
         "drug": drug_features.columns.tolist(),
         "solvent": solvent_features.columns.tolist(),
         "temperature": temperature_features.columns.tolist(),
+        "maccs": [column for column in features.columns if "_maccs_" in column],
         "solvent_identity": solvent_identity_columns,
         "physchem_interaction": physchem_interaction_columns,
         "temperature_interaction": temperature_interaction_columns,
+        "chem_interaction": chem_interaction_columns,
     }
     return features, column_groups

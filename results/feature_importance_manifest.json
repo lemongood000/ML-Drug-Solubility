@@ -1,0 +1,28 @@
+{
+  "pipeline_version": "1.1.0",
+  "created_at": "2026-11-22T19:02:36+08:00",
+  "config_id": "dab3c5118286",
+  "config": {
+    "experiment": "fold_xgboost_gain_importance",
+    "feature_config": "all_enhanced_features_with_maccs",
+    "importance_type": "gain",
+    "model": "xgboost",
+    "model_seed": 42,
+    "split_group": "drug_smiles_canonical"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.2",
+      "joblib": "1.4.2",
+      "scikit-learn": "1.5.1",
+      "rdkit": "2026.9.2",
+      "torch": "2.6.0+cpu",
+      "xgboost": "3.4.1",
+      "streamlit": "1.67.0",
+      "matplotlib": "3.9.2"
+    }
+  }
+}

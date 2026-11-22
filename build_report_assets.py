@@ -38,6 +38,11 @@ def main() -> None:
     splits = pd.read_csv(RESULTS_DIR / "split_stability_summary.csv")
     ablation = pd.read_csv(RESULTS_DIR / "feature_ablation_summary.csv")
     robustness = pd.read_csv(RESULTS_DIR / "robustness_summary.csv")
+    repeated = pd.read_csv(RESULTS_DIR / "repeated_measurement_sensitivity.csv")
+    interaction_ablation = pd.read_csv(RESULTS_DIR / "interaction_feature_ablation.csv")
+    importance = pd.read_csv(RESULTS_DIR / "feature_importance.csv")
+    feature_selection = pd.read_csv(RESULTS_DIR / "fold_feature_selection_summary.csv")
+    seed_ensemble = pd.read_csv(RESULTS_DIR / "seed_ensemble_summary.csv")
     conformal_metrics = pd.read_csv(RESULTS_DIR / "conformal_metrics.csv")
     ranking_summary = json.loads(
         (RESULTS_DIR / "ranking_validation" / "summary.json").read_text(
@@ -45,9 +50,7 @@ def main() -> None:
         )
     )
     error_summary = json.loads(
-        (RESULTS_DIR / "error_analysis" / "report.json").read_text(
-            encoding="utf-8"
-        )
+        (RESULTS_DIR / "error_analysis" / "report.json").read_text(encoding="utf-8")
     )
 
     model_rows = []
@@ -68,15 +71,18 @@ def main() -> None:
                 }
             )
     model_comparison = pd.DataFrame(model_rows).sort_values("rmse_mean")
-    model_comparison.to_csv(
-        OUTPUT_DIR / "model_comparison.csv", index=False
-    )
+    model_comparison.to_csv(OUTPUT_DIR / "model_comparison.csv", index=False)
     splits.to_csv(OUTPUT_DIR / "split_stability.csv", index=False)
     ablation.to_csv(OUTPUT_DIR / "feature_ablation.csv", index=False)
     robustness.to_csv(OUTPUT_DIR / "robustness.csv", index=False)
-    conformal_metrics.to_csv(
-        OUTPUT_DIR / "conformal_by_fold.csv", index=False
+    repeated.to_csv(OUTPUT_DIR / "repeated_measurement_sensitivity.csv", index=False)
+    interaction_ablation.to_csv(
+        OUTPUT_DIR / "interaction_feature_ablation.csv", index=False
     )
+    importance.head(50).to_csv(OUTPUT_DIR / "feature_importance_top50.csv", index=False)
+    feature_selection.to_csv(OUTPUT_DIR / "fold_feature_selection.csv", index=False)
+    seed_ensemble.to_csv(OUTPUT_DIR / "seed_ensemble.csv", index=False)
+    conformal_metrics.to_csv(OUTPUT_DIR / "conformal_by_fold.csv", index=False)
 
     sections = [
         "# Report Tables",
@@ -112,6 +118,38 @@ def main() -> None:
                 ]
             ]
         ),
+        "## Incremental chemistry features beyond MACCS",
+        markdown_table(
+            interaction_ablation[
+                [
+                    "feature_set",
+                    "feature_count",
+                    "rmse_mean",
+                    "rmse_std",
+                    "mae_mean",
+                    "r2_mean",
+                ]
+            ]
+        ),
+        "## Repeated-measurement aggregation sensitivity",
+        markdown_table(
+            repeated[
+                [
+                    "aggregation",
+                    "rows",
+                    "rmse_mean",
+                    "rmse_std",
+                    "mae_mean",
+                    "r2_mean",
+                ]
+            ]
+        ),
+        "## Top fold-wise XGBoost gain features",
+        markdown_table(importance.head(30)),
+        "## Fold-internal feature-selection comparison",
+        markdown_table(feature_selection),
+        "## Multi-seed XGBoost comparison",
+        markdown_table(seed_ensemble),
         "## Negative robustness results",
         markdown_table(
             robustness[
@@ -141,25 +179,24 @@ def main() -> None:
             ]
         ),
         "## Solvent-ranking validation at 25 C",
-        "\n".join(
-            f"- {key}: {value}" for key, value in ranking_summary.items()
-        ),
+        "\n".join(f"- {key}: {value}" for key, value in ranking_summary.items()),
         "## Error and applicability-domain findings",
-        "\n".join(
-            f"- {key}: {value}" for key, value in error_summary.items()
-        ),
+        "\n".join(f"- {key}: {value}" for key, value in error_summary.items()),
     ]
-    (OUTPUT_DIR / "tables.md").write_text(
-        "\n\n".join(sections), encoding="utf-8"
-    )
+    (OUTPUT_DIR / "tables.md").write_text("\n\n".join(sections), encoding="utf-8")
     (OUTPUT_DIR / "summary.json").write_text(
         json.dumps(
             {
-                "best_single_models": model_comparison.head(5).to_dict(
-                    "records"
-                ),
+                "best_single_models": model_comparison.head(5).to_dict("records"),
                 "split_stability": splits.to_dict("records"),
                 "nested_tuning": nested.to_dict("records"),
+                "repeated_measurement_sensitivity": repeated.to_dict("records"),
+                "interaction_feature_ablation": (
+                    interaction_ablation.to_dict("records")
+                ),
+                "top_feature_importance": importance.head(30).to_dict("records"),
+                "fold_feature_selection": feature_selection.to_dict("records"),
+                "seed_ensemble": seed_ensemble.to_dict("records"),
                 "solvent_ranking": ranking_summary,
                 "error_analysis": error_summary,
             },

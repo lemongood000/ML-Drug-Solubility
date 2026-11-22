@@ -87,6 +87,7 @@ def main() -> None:
         include_solvent_identity=True,
         include_physchem_interactions=True,
         include_temperature_interactions=True,
+        include_maccs=True,
     )
     target = frame["Solubility_log10"].to_numpy(dtype=np.float32)
     groups = frame["drug_smiles_canonical"].to_numpy()
@@ -111,9 +112,7 @@ def main() -> None:
                 model.fit(features.iloc[inner_train], target[inner_train])
                 prediction = model.predict(features.iloc[inner_valid])
                 inner_scores.append(
-                    regression_metrics(
-                        target[inner_valid], prediction
-                    )["rmse"]
+                    regression_metrics(target[inner_valid], prediction)["rmse"]
                 )
             tuning_rows.append(
                 {
@@ -123,9 +122,7 @@ def main() -> None:
                     "inner_rmse_std": float(np.std(inner_scores)),
                 }
             )
-        tuning_frame = pd.DataFrame(tuning_rows).sort_values(
-            "inner_rmse_mean"
-        )
+        tuning_frame = pd.DataFrame(tuning_rows).sort_values("inner_rmse_mean")
         selected_name = str(tuning_frame.iloc[0]["config"])
         selected_config = next(
             config for config in CONFIGS if config["name"] == selected_name
@@ -154,12 +151,8 @@ def main() -> None:
 
     metrics_frame = pd.DataFrame(outer_metrics)
     choices_frame = pd.DataFrame(choices)
-    metrics_frame.to_csv(
-        RESULTS_DIR / "nested_tuning_metrics.csv", index=False
-    )
-    choices_frame.to_csv(
-        RESULTS_DIR / "nested_tuning_choices.csv", index=False
-    )
+    metrics_frame.to_csv(RESULTS_DIR / "nested_tuning_metrics.csv", index=False)
+    choices_frame.to_csv(RESULTS_DIR / "nested_tuning_choices.csv", index=False)
     summary = {
         "rmse_mean": float(metrics_frame["rmse"].mean()),
         "rmse_std": float(metrics_frame["rmse"].std()),
@@ -175,7 +168,8 @@ def main() -> None:
             "experiment": "nested_xgboost_tuning",
             "clean_sha256": sha256_file(RESULTS_DIR / "clean.csv"),
             "folds_sha256": sha256_file(RESULTS_DIR / "folds.json"),
-            "feature_config": "all_enhanced_features",
+            "feature_config": "all_enhanced_features_with_maccs",
+            "include_maccs": True,
             "inner_folds": 3,
             "candidate_configs": CONFIGS,
             "model_seed": 42,

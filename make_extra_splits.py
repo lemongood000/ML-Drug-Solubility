@@ -53,15 +53,11 @@ def main() -> None:
             n_splits=5,
             seed=seed,
         )
-        split_specs.append(
-            ("drug", seed, "drug_smiles_canonical", assignment, frame)
-        )
+        split_specs.append(("drug", seed, "drug_smiles_canonical", assignment, frame))
 
     pair_frame = frame.assign(
         pair_group=(
-            frame["drug_smiles_canonical"]
-            + "|"
-            + frame["solvent_smiles_canonical"]
+            frame["drug_smiles_canonical"] + "|" + frame["solvent_smiles_canonical"]
         )
     )
     pair_assignment = make_balanced_group_folds(
@@ -85,6 +81,22 @@ def main() -> None:
         ("scaffold", 42, "scaffold_group", scaffold_assignment, scaffold_frame)
     )
 
+    solvent_assignment = make_balanced_group_folds(
+        frame,
+        group_column="solvent_smiles_canonical",
+        n_splits=5,
+        seed=42,
+    )
+    split_specs.append(
+        (
+            "solvent",
+            42,
+            "solvent_smiles_canonical",
+            solvent_assignment,
+            frame,
+        )
+    )
+
     random_assignment = random_folds(frame, seed=42)
     split_specs.append(("random", 42, "row_id", random_assignment, frame))
 
@@ -98,14 +110,10 @@ def main() -> None:
             group_column=group_column,
         )
         summary = fold_summary(
-            split_frame.assign(
-                drug_smiles_canonical=split_frame[group_column]
-            ),
+            split_frame.assign(drug_smiles_canonical=split_frame[group_column]),
             assignment,
         )
-        summary.to_csv(
-            SPLITS_DIR / f"fold_summary_{kind}_{seed}.csv", index=False
-        )
+        summary.to_csv(SPLITS_DIR / f"fold_summary_{kind}_{seed}.csv", index=False)
         print(f"Wrote {kind} split seed={seed} to {output_path}")
 
     print(f"Split artifacts written to {SPLITS_DIR}")

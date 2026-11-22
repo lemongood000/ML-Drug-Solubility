@@ -31,12 +31,27 @@ def save_model_comparison() -> None:
         ],
         ignore_index=True,
     ).sort_values("rmse_mean")
+    display_names = {
+        "enhanced_xgboost": "Enhanced XGBoost",
+        "enhanced_hist_gradient_boosting": "Enhanced HistGB",
+        "enhanced_random_forest": "Enhanced Random Forest",
+        "hist_gradient_boosting": "HistGB",
+        "xgb": "XGBoost baseline",
+        "extra_trees": "Extra Trees",
+        "rf": "Random Forest baseline",
+        "mean": "Mean baseline",
+        "ridge": "Ridge",
+        "knn": "KNN",
+    }
+    combined["label"] = combined["model"].map(display_names).fillna("Two-tower MLP")
     fig, ax = plt.subplots(figsize=(10, 5.5))
-    colors = ["#2E6F73" if model != "mean" else "#A0A6AA" for model in combined["model"]]
-    ax.barh(combined["model"], combined["rmse_mean"], color=colors)
+    colors = [
+        "#2E6F73" if model != "mean" else "#A0A6AA" for model in combined["model"]
+    ]
+    ax.barh(combined["label"], combined["rmse_mean"], color=colors)
     ax.errorbar(
         combined["rmse_mean"],
-        combined["model"],
+        combined["label"],
         xerr=combined["rmse_std"],
         fmt="none",
         ecolor="#30363D",
@@ -108,12 +123,8 @@ def save_training_curve() -> None:
 
 def save_residual_by_temperature() -> None:
     clean = pd.read_csv(RESULTS_DIR / "clean.csv", encoding="utf-8-sig")
-    files = sorted(
-        PREDICTIONS_DIR.glob("enhanced_xgboost_fold*.csv")
-    )
-    predictions = pd.concat(
-        [pd.read_csv(path) for path in files], ignore_index=True
-    )
+    files = sorted(PREDICTIONS_DIR.glob("enhanced_xgboost_fold*.csv"))
+    predictions = pd.concat([pd.read_csv(path) for path in files], ignore_index=True)
     merged = predictions.merge(
         clean[["row_id", "Temperature"]], on="row_id", how="left"
     )
@@ -138,14 +149,26 @@ def save_residual_by_temperature() -> None:
 
 def save_split_comparison() -> None:
     split = pd.read_csv(RESULTS_DIR / "split_stability_summary.csv")
-    split["label"] = (
-        split["split_kind"] + " seed " + split["split_seed"].astype(str)
-    )
+    split["label"] = [
+        {
+            "drug": f"Unseen drugs ({seed})",
+            "scaffold": "Unseen scaffolds",
+            "solvent": "Unseen solvents",
+            "pair": "Unseen drug-solvent pairs",
+            "random": "Random rows",
+        }[kind]
+        for kind, seed in zip(
+            split["split_kind"],
+            split["split_seed"],
+            strict=True,
+        )
+    ]
     fig, ax = plt.subplots(figsize=(9, 4.8))
     colors = split["split_kind"].map(
         {
             "drug": "#2E6F73",
             "scaffold": "#A15C38",
+            "solvent": "#7B6D8D",
             "pair": "#6E7F80",
             "random": "#B9BEC1",
         }
@@ -170,15 +193,25 @@ def save_split_comparison() -> None:
 
 def save_feature_ablation() -> None:
     ablation = pd.read_csv(RESULTS_DIR / "feature_ablation_summary.csv")
+    labels = {
+        "all_enhanced_features_with_maccs": "All enhanced + MACCS",
+        "all_enhanced_features": "All enhanced",
+        "all_interactions": "All interactions",
+        "physchem_interactions": "Physchem interactions",
+        "base": "Base",
+        "temperature_interactions": "Temperature interactions",
+        "solvent_identity": "Solvent identity",
+    }
+    ablation["label"] = ablation["feature_set"].map(labels)
     fig, ax = plt.subplots(figsize=(9, 4.8))
     ax.barh(
-        ablation["feature_set"],
+        ablation["label"],
         ablation["rmse_mean"],
         color="#2E6F73",
     )
     ax.errorbar(
         ablation["rmse_mean"],
-        ablation["feature_set"],
+        ablation["label"],
         xerr=ablation["rmse_std"],
         fmt="none",
         ecolor="#30363D",
@@ -217,7 +250,7 @@ def save_conformal_coverage() -> None:
     ax.set_xticks(positions, [f"Fold {value}" for value in conformal["fold"]])
     ax.set_ylim(0.5, 1.02)
     ax.set_ylabel("Empirical coverage")
-    ax.set_title("Grouped cross-conformal interval coverage")
+    ax.set_title("Grouped cross-fitted empirical interval coverage")
     ax.legend()
     ax.grid(axis="y", alpha=0.2)
     fig.tight_layout()

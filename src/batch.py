@@ -32,9 +32,7 @@ def normalise_batch_columns(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
-def predict_batch(
-    bundle: dict[str, Any], input_frame: pd.DataFrame
-) -> pd.DataFrame:
+def predict_batch(bundle: dict[str, Any], input_frame: pd.DataFrame) -> pd.DataFrame:
     frame = normalise_batch_columns(input_frame)
     solvent_lookup = {
         str(name).strip().casefold(): smiles
@@ -61,7 +59,9 @@ def predict_batch(
         if canonical_smiles is None:
             error_messages.append("Invalid or empty drug SMILES")
         if solvent_smiles is None:
-            error_messages.append("Unknown solvent; only the 49 training solvents are supported")
+            error_messages.append(
+                "Unknown solvent; only the 49 training solvents are supported"
+            )
         if temperature is None:
             error_messages.append("Temperature is not numeric")
 
@@ -111,6 +111,8 @@ def predict_batch(
                 if column in predictions.columns
             ],
             "nearest_drug_similarity",
+            "drug_applicability_status",
+            "temperature_applicability_status",
             "applicability_status",
         ]
         valid_output = predictions[columns]

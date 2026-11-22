@@ -46,9 +46,7 @@ def predict_solvents(
         }
     )
     frame = _predict_frame(bundle, frame)
-    return frame.sort_values("log10_solubility", ascending=False).reset_index(
-        drop=True
-    )
+    return frame.sort_values("log10_solubility", ascending=False).reset_index(drop=True)
 
 
 def predict_temperature_curve(
@@ -77,9 +75,7 @@ def predict_temperature_curve(
     return result
 
 
-def _predict_frame(
-    bundle: dict[str, Any], frame: pd.DataFrame
-) -> pd.DataFrame:
+def _predict_frame(bundle: dict[str, Any], frame: pd.DataFrame) -> pd.DataFrame:
     features, _ = build_feature_matrix(
         frame,
         drug_bits=bundle["drug_bits"],
@@ -93,6 +89,8 @@ def _predict_frame(
             "include_temperature_interactions",
             bundle.get("include_interactions", False),
         ),
+        include_maccs=bundle.get("include_maccs", False),
+        include_chem_interactions=bundle.get("include_chem_interactions", False),
     )
     features = features.reindex(columns=bundle["feature_columns"], fill_value=0.0)
     predictions = np.column_stack(
@@ -102,34 +100,22 @@ def _predict_frame(
         bundle.get("model_weights", np.full(predictions.shape[1], 1.0)),
         dtype=np.float32,
     )
-    if len(weights) != predictions.shape[1] or not np.isclose(
-        weights.sum(), 1.0
-    ):
+    if len(weights) != predictions.shape[1] or not np.isclose(weights.sum(), 1.0):
         raise ValueError("Model weights are invalid or do not sum to one.")
     result = frame.copy()
     result["log10_solubility"] = predictions @ weights
     result["model_disagreement"] = predictions.std(axis=1)
     result["model_std"] = result["model_disagreement"]
-    result["prediction_low"] = (
-        result["log10_solubility"] - result["model_disagreement"]
-    )
+    result["prediction_low"] = result["log10_solubility"] - result["model_disagreement"]
     result["prediction_high"] = (
         result["log10_solubility"] + result["model_disagreement"]
     )
     conformal = bundle.get("conformal")
     if conformal:
-        result["lower_80"] = (
-            result["log10_solubility"] - conformal["radius_80"]
-        )
-        result["upper_80"] = (
-            result["log10_solubility"] + conformal["radius_80"]
-        )
-        result["lower_90"] = (
-            result["log10_solubility"] - conformal["radius_90"]
-        )
-        result["upper_90"] = (
-            result["log10_solubility"] + conformal["radius_90"]
-        )
+        result["lower_80"] = result["log10_solubility"] - conformal["radius_80"]
+        result["upper_80"] = result["log10_solubility"] + conformal["radius_80"]
+        result["lower_90"] = result["log10_solubility"] - conformal["radius_90"]
+        result["upper_90"] = result["log10_solubility"] + conformal["radius_90"]
     result["solubility_mol_l"] = np.power(10.0, result["log10_solubility"])
 
     nearest_by_drug = {}
@@ -141,23 +127,46 @@ def _predict_frame(
             float(similarity[nearest_index]),
             bundle["training_drug_smiles"][nearest_index],
         )
-    result["nearest_drug_similarity"] = frame[
-        "drug_smiles_canonical"
-    ].map(lambda smiles: nearest_by_drug[smiles][0])
-    result["nearest_training_drug"] = frame[
-        "drug_smiles_canonical"
-    ].map(lambda smiles: nearest_by_drug[smiles][1])
-    result["applicability_status"] = np.where(
-        result["nearest_drug_similarity"].to_numpy() >= bundle["ad_threshold"],
-        "Within applicability domain",
-        "Extrapolation warning",
+    result["nearest_drug_similarity"] = frame["drug_smiles_canonical"].map(
+        lambda smiles: nearest_by_drug[smiles][0]
     )
+    result["nearest_training_drug"] = frame["drug_smiles_canonical"].map(
+        lambda smiles: nearest_by_drug[smiles][1]
+    )
+    result["drug_applicability_status"] = np.where(
+        result["nearest_drug_similarity"].to_numpy() >= bundle["ad_threshold"],
+        "Within",
+        "Extrapolation",
+    )
+    temperature_range = bundle.get("temperature_range_c")
+    if temperature_range:
+        temperature_inside = result["Temperature"].between(
+            float(temperature_range["min"]),
+            float(temperature_range["max"]),
+            inclusive="both",
+        )
+        result["temperature_applicability_status"] = np.where(
+            temperature_inside,
+            "Within",
+            "Extrapolation",
+        )
+        result["applicability_status"] = np.where(
+            (result["drug_applicability_status"] == "Within")
+            & (result["temperature_applicability_status"] == "Within"),
+            "Within applicability domain",
+            "Extrapolation warning",
+        )
+    else:
+        result["temperature_applicability_status"] = "Unknown"
+        result["applicability_status"] = np.where(
+            result["drug_applicability_status"] == "Within",
+            "Within applicability domain",
+            "Extrapolation warning",
+        )
     return result
 
 
-def predict_rows(
-    bundle: dict[str, Any], frame: pd.DataFrame
-) -> pd.DataFrame:
+def predict_rows(bundle: dict[str, Any], frame: pd.DataFrame) -> pd.DataFrame:
     required = {"drug_smiles_canonical", "solvent_smiles_canonical", "Temperature"}
     missing = required.difference(frame.columns)
     if missing:
@@ -171,9 +180,7 @@ def _drug_fingerprint(smiles: str, n_bits: int) -> np.ndarray:
     molecule = Chem.MolFromSmiles(smiles)
     if molecule is None:
         raise ValueError("Invalid SMILES")
-    generator = rdFingerprintGenerator.GetMorganGenerator(
-        radius=2, fpSize=n_bits
-    )
+    generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=n_bits)
     return generator.GetFingerprintAsNumPy(molecule).astype(np.float32)
 
 

@@ -36,6 +36,11 @@ The scripts also run from PowerShell:
 .\.venv\Scripts\python.exe run_nested_tuning.py
 .\.venv\Scripts\python.exe run_robustness_experiments.py
 .\.venv\Scripts\python.exe run_conformal.py
+.\.venv\Scripts\python.exe run_repeated_measurement_sensitivity.py
+.\.venv\Scripts\python.exe run_interaction_feature_ablation.py
+.\.venv\Scripts\python.exe run_feature_importance.py
+.\.venv\Scripts\python.exe run_fold_feature_selection.py
+.\.venv\Scripts\python.exe run_seed_ensemble.py
 .\.venv\Scripts\python.exe train_final.py
 .\.venv\Scripts\python.exe make_figures.py
 .\.venv\Scripts\python.exe build_report_assets.py
@@ -72,6 +77,14 @@ Useful intermediate runs:
   canonical drug SMILES, so each validation fold represents unseen drugs.
 - Fold assignments are written once to `results/folds.json` and should be
   reused by every model.
+- Additional diagnostics cover unseen scaffolds, unseen solvents, unseen
+  drug-solvent pairs, and random rows.
+- The final feature set adds 167-bit MACCS keys for both molecules to the
+  Morgan fingerprints, descriptors, solvent identity, temperature terms, and
+  interaction blocks.
+- Median, mean, and unaggregated repeated-measurement datasets are compared by
+  `run_repeated_measurement_sensitivity.py`; every record for a drug stays in
+  the same fold.
 
 ## Outputs
 
@@ -86,17 +99,20 @@ Useful intermediate runs:
 - `results/mlp_sweep_summary.csv`: one-seed screening results for MLP settings.
 - `results/mlp_experiment_summary.csv`: interaction and loss experiments.
 - `results/advanced_baseline_summary.csv`: tree, kernel, and neighbor models.
+- `results/repeated_measurement_sensitivity.csv`: aggregation comparison.
+- `results/interaction_feature_ablation.csv`: incremental chemistry feature
+  comparison.
+- `results/feature_importance.csv`: fold-wise XGBoost gain importance.
 - `artifacts/solubility_models.joblib`: final tree-model bundle.
 - `figures/`: report-ready comparison, parity, curve, and residual figures.
 - `results/predictions/`: prediction files for error analysis.
 
-## Next milestones
+## Future work
 
-1. Add the two-tower PyTorch MLP (`v0`).
-2. Add feature, loss, regularization, and temperature ablations.
-3. Evaluate one higher-value improvement, such as a physics-informed
-   temperature term or model ensemble.
-4. Package the selected model in a Streamlit application.
+1. Validate on an external solubility dataset.
+2. Test regularized or physically constrained temperature models.
+3. Improve calibration for the under-covered drug fold.
+4. Extend applicability-domain checks if additional solvents are introduced.
 
 ## Run the application
 

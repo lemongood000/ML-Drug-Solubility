@@ -3,26 +3,26 @@
     {
       "family": "enhanced",
       "model": "xgboost",
-      "rmse_mean": 0.8678468108177185,
-      "rmse_std": 0.187185299901811,
-      "mae_mean": 0.6407012581825257,
-      "r2_mean": 0.5181485533714294
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "r2_mean": 0.5433618187904358
     },
     {
       "family": "enhanced",
       "model": "hist_gradient_boosting",
-      "rmse_mean": 0.8809222415907115,
-      "rmse_std": 0.1872494736920462,
-      "mae_mean": 0.6533732187646986,
-      "r2_mean": 0.5020581958155456
+      "rmse_mean": 0.8589663415770129,
+      "rmse_std": 0.1768785547826847,
+      "mae_mean": 0.6415229946364094,
+      "r2_mean": 0.5227330636032339
     },
     {
       "family": "enhanced",
       "model": "random_forest",
-      "rmse_mean": 0.8927670905077102,
-      "rmse_std": 0.1856377442794173,
-      "mae_mean": 0.6836024414941404,
-      "r2_mean": 0.4908918223312214
+      "rmse_mean": 0.8717630214787672,
+      "rmse_std": 0.1739395352240162,
+      "mae_mean": 0.6609959921289074,
+      "r2_mean": 0.5139933133730781
     },
     {
       "family": "advanced",
@@ -45,58 +45,395 @@
     {
       "split_kind": "drug",
       "split_seed": 42,
-      "rmse_mean": 0.8678468108177185,
-      "rmse_std": 0.187185299901811,
-      "mae_mean": 0.6407012581825257,
-      "r2_mean": 0.5181485533714294
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "r2_mean": 0.5433618187904358
     },
     {
       "split_kind": "drug",
       "split_seed": 1729,
-      "rmse_mean": 0.915591824054718,
-      "rmse_std": 0.1773812828811495,
-      "mae_mean": 0.6845398545265198,
-      "r2_mean": 0.4434039831161499
+      "rmse_mean": 0.9002650141716003,
+      "rmse_std": 0.17989272422402,
+      "mae_mean": 0.6683736503124237,
+      "r2_mean": 0.4680393576622009
     },
     {
       "split_kind": "drug",
       "split_seed": 2026,
-      "rmse_mean": 0.918439793586731,
-      "rmse_std": 0.1462058897198151,
-      "mae_mean": 0.6779376745224,
-      "r2_mean": 0.444256317615509
+      "rmse_mean": 0.9052139163017272,
+      "rmse_std": 0.1221893133907648,
+      "mae_mean": 0.6721686244010925,
+      "r2_mean": 0.4622649550437927
     },
     {
       "split_kind": "scaffold",
       "split_seed": 42,
-      "rmse_mean": 0.9951457500457764,
-      "rmse_std": 0.1662974504516831,
-      "mae_mean": 0.7839778065681458,
-      "r2_mean": 0.2573086500167846
+      "rmse_mean": 0.9682187676429748,
+      "rmse_std": 0.1782749944536144,
+      "mae_mean": 0.766819953918457,
+      "r2_mean": 0.2995402336120605
+    },
+    {
+      "split_kind": "solvent",
+      "split_seed": 42,
+      "rmse_mean": 0.8592251062393188,
+      "rmse_std": 0.2810797940562983,
+      "mae_mean": 0.6318170726299286,
+      "r2_mean": 0.5298174977302551
     },
     {
       "split_kind": "pair",
       "split_seed": 42,
-      "rmse_mean": 0.7570917010307312,
-      "rmse_std": 0.0646828674462974,
-      "mae_mean": 0.5429215848445892,
-      "r2_mean": 0.6419831037521362
+      "rmse_mean": 0.7471436977386474,
+      "rmse_std": 0.055076755830672,
+      "mae_mean": 0.5368279337882995,
+      "r2_mean": 0.652132225036621
     },
     {
       "split_kind": "random",
       "split_seed": 42,
-      "rmse_mean": 0.4048934042453765,
-      "rmse_std": 0.057821211153453,
-      "mae_mean": 0.2301338344812393,
-      "r2_mean": 0.8976866960525512
+      "rmse_mean": 0.3969080507755279,
+      "rmse_std": 0.0597517044938424,
+      "mae_mean": 0.2229279190301895,
+      "r2_mean": 0.9015855312347412
     }
   ],
   "nested_tuning": [
     {
-      "rmse_mean": 0.8621145606040954,
-      "rmse_std": 0.190160427420621,
-      "mae_mean": 0.6406242728233338,
-      "r2_mean": 0.5242328882217407
+      "rmse_mean": 0.8668246626853943,
+      "rmse_std": 0.1694708508050635,
+      "mae_mean": 0.6484932184219361,
+      "r2_mean": 0.5188492178916931
+    }
+  ],
+  "repeated_measurement_sensitivity": [
+    {
+      "aggregation": "median",
+      "rows": 1785,
+      "audit_rows_after_aggregation": 1785,
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "r2_mean": 0.5433618187904358
+    },
+    {
+      "aggregation": "mean",
+      "rows": 1785,
+      "audit_rows_after_aggregation": 1785,
+      "rmse_mean": 0.8452982664108276,
+      "rmse_std": 0.180070721878963,
+      "mae_mean": 0.6279066920280456,
+      "r2_mean": 0.5416104435920716
+    },
+    {
+      "aggregation": "none",
+      "rows": 1900,
+      "audit_rows_after_aggregation": 1900,
+      "rmse_mean": 0.8750949263572693,
+      "rmse_std": 0.1271890898291574,
+      "mae_mean": 0.6374113082885742,
+      "r2_mean": 0.523443078994751
+    }
+  ],
+  "interaction_feature_ablation": [
+    {
+      "feature_set": "maccs",
+      "feature_count": 1698,
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "r2_mean": 0.5433618187904358
+    },
+    {
+      "feature_set": "maccs_hbond",
+      "feature_count": 1702,
+      "rmse_mean": 0.8466079950332641,
+      "rmse_std": 0.1629175314408381,
+      "mae_mean": 0.6256829738616944,
+      "r2_mean": 0.5383245348930359
+    },
+    {
+      "feature_set": "maccs_molecular_weight_ratio",
+      "feature_count": 1699,
+      "rmse_mean": 0.847632110118866,
+      "rmse_std": 0.1842648398900961,
+      "mae_mean": 0.6274073004722596,
+      "r2_mean": 0.5400132656097412
+    },
+    {
+      "feature_set": "maccs_morgan_tanimoto",
+      "feature_count": 1699,
+      "rmse_mean": 0.8528168439865113,
+      "rmse_std": 0.1933143260085378,
+      "mae_mean": 0.6227054595947266,
+      "r2_mean": 0.5368052124977112
+    },
+    {
+      "feature_set": "maccs_all_chem_interactions",
+      "feature_count": 1704,
+      "rmse_mean": 0.8551913142204285,
+      "rmse_std": 0.1882878507691485,
+      "mae_mean": 0.6270111322402954,
+      "r2_mean": 0.5307236552238465
+    }
+  ],
+  "top_feature_importance": [
+    {
+      "feature": "solvent_maccs_164",
+      "mean": 0.023726597,
+      "std": 0.034671538,
+      "rank": 1
+    },
+    {
+      "feature": "drug_heteroatoms",
+      "mean": 0.021915521,
+      "std": 0.033578124,
+      "rank": 2
+    },
+    {
+      "feature": "drug_morgan_0508",
+      "mean": 0.018758133,
+      "std": 0.01081469,
+      "rank": 3
+    },
+    {
+      "feature": "drug_labute_asa",
+      "mean": 0.016581863,
+      "std": 0.005116333,
+      "rank": 4
+    },
+    {
+      "feature": "interaction_tpsa_difference",
+      "mean": 0.0133523345,
+      "std": 0.0055177053,
+      "rank": 5
+    },
+    {
+      "feature": "drug_morgan_0195",
+      "mean": 0.013274312,
+      "std": 0.018172082,
+      "rank": 6
+    },
+    {
+      "feature": "solvent_identity_C1CCCCC1",
+      "mean": 0.013147114,
+      "std": 0.013052625,
+      "rank": 7
+    },
+    {
+      "feature": "drug_maccs_156",
+      "mean": 0.011501519,
+      "std": 0.006425874,
+      "rank": 8
+    },
+    {
+      "feature": "drug_maccs_135",
+      "mean": 0.009378264,
+      "std": 0.0049746684,
+      "rank": 9
+    },
+    {
+      "feature": "solvent_maccs_110",
+      "mean": 0.008195041,
+      "std": 0.010474809,
+      "rank": 10
+    },
+    {
+      "feature": "solvent_maccs_163",
+      "mean": 0.007889981,
+      "std": 0.010343887,
+      "rank": 11
+    },
+    {
+      "feature": "drug_heavy_atoms",
+      "mean": 0.0077260705,
+      "std": 0.0022295935,
+      "rank": 12
+    },
+    {
+      "feature": "drug_maccs_166",
+      "mean": 0.00762989,
+      "std": 0.006032024,
+      "rank": 13
+    },
+    {
+      "feature": "drug_morgan_0268",
+      "mean": 0.0075221583,
+      "std": 0.011908197,
+      "rank": 14
+    },
+    {
+      "feature": "drug_maccs_052",
+      "mean": 0.007418748,
+      "std": 0.0046748123,
+      "rank": 15
+    },
+    {
+      "feature": "drug_mol_wt",
+      "mean": 0.007253808,
+      "std": 0.0024955443,
+      "rank": 16
+    },
+    {
+      "feature": "drug_morgan_0967",
+      "mean": 0.0071690218,
+      "std": 0.0061853044,
+      "rank": 17
+    },
+    {
+      "feature": "drug_maccs_105",
+      "mean": 0.007116207,
+      "std": 0.0045344066,
+      "rank": 18
+    },
+    {
+      "feature": "drug_maccs_084",
+      "mean": 0.006697917,
+      "std": 0.008698616,
+      "rank": 19
+    },
+    {
+      "feature": "drug_maccs_074",
+      "mean": 0.0066253124,
+      "std": 0.0027737147,
+      "rank": 20
+    },
+    {
+      "feature": "drug_maccs_101",
+      "mean": 0.006500819,
+      "std": 0.009960093,
+      "rank": 21
+    },
+    {
+      "feature": "drug_morgan_0540",
+      "mean": 0.0063875355,
+      "std": 0.011084947,
+      "rank": 22
+    },
+    {
+      "feature": "drug_ring_count",
+      "mean": 0.006201841,
+      "std": 0.00440205,
+      "rank": 23
+    },
+    {
+      "feature": "drug_maccs_114",
+      "mean": 0.0058990754,
+      "std": 0.0060428414,
+      "rank": 24
+    },
+    {
+      "feature": "solvent_morgan_0004",
+      "mean": 0.0058958107,
+      "std": 0.005407019,
+      "rank": 25
+    },
+    {
+      "feature": "drug_maccs_035",
+      "mean": 0.00577378,
+      "std": 0.00900551,
+      "rank": 26
+    },
+    {
+      "feature": "drug_morgan_0715",
+      "mean": 0.0056526447,
+      "std": 0.003954942,
+      "rank": 27
+    },
+    {
+      "feature": "drug_morgan_0294",
+      "mean": 0.005577142,
+      "std": 0.0050199684,
+      "rank": 28
+    },
+    {
+      "feature": "drug_maccs_161",
+      "mean": 0.0053633675,
+      "std": 0.0025479253,
+      "rank": 29
+    },
+    {
+      "feature": "drug_maccs_153",
+      "mean": 0.0051701567,
+      "std": 0.0035554254,
+      "rank": 30
+    }
+  ],
+  "fold_feature_selection": [
+    {
+      "feature_count": 1698,
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "mae_std": 0.1517530319268377,
+      "r2_mean": 0.5433618187904358,
+      "r2_std": 0.0640355678592181
+    },
+    {
+      "feature_count": 500,
+      "rmse_mean": 0.8450436592102051,
+      "rmse_std": 0.1631382306313647,
+      "mae_mean": 0.6198028564453125,
+      "mae_std": 0.153197434038249,
+      "r2_mean": 0.540587866306305,
+      "r2_std": 0.0711138300361538
+    },
+    {
+      "feature_count": 1500,
+      "rmse_mean": 0.8468679904937744,
+      "rmse_std": 0.1870301910351333,
+      "mae_mean": 0.6282384037971497,
+      "mae_std": 0.1645199092915257,
+      "r2_mean": 0.5407310366630554,
+      "r2_std": 0.0795311254251118
+    },
+    {
+      "feature_count": 1000,
+      "rmse_mean": 0.8500020146369934,
+      "rmse_std": 0.1790167772522198,
+      "mae_mean": 0.6211826920509338,
+      "mae_std": 0.1607789360559209,
+      "r2_mean": 0.5370909452438355,
+      "r2_std": 0.0721138386822169
+    },
+    {
+      "feature_count": 200,
+      "rmse_mean": 0.8617439866065979,
+      "rmse_std": 0.1643516930975438,
+      "mae_mean": 0.6427659869194031,
+      "mae_std": 0.1440958505007682,
+      "r2_mean": 0.5224177479743958,
+      "r2_std": 0.0699282579934464
+    }
+  ],
+  "seed_ensemble": [
+    {
+      "seeds_used": 1,
+      "rmse_mean": 0.8439932227134704,
+      "rmse_std": 0.1702330903325449,
+      "mae_mean": 0.6250000715255737,
+      "mae_std": 0.1517530319268377,
+      "r2_mean": 0.5433618187904358,
+      "r2_std": 0.0640355678592181
+    },
+    {
+      "seeds_used": 3,
+      "rmse_mean": 0.8465941786766052,
+      "rmse_std": 0.174302718314443,
+      "mae_mean": 0.6259219646453857,
+      "mae_std": 0.1586655756655708,
+      "r2_mean": 0.5405600070953369,
+      "r2_std": 0.0682947047594381
+    },
+    {
+      "seeds_used": 5,
+      "rmse_mean": 0.8466552853584289,
+      "rmse_std": 0.1781727642971688,
+      "mae_mean": 0.6230231165885926,
+      "mae_std": 0.1610311834157126,
+      "r2_mean": 0.540744948387146,
+      "r2_std": 0.0709981104257009
     }
   ],
   "solvent_ranking": {
@@ -104,32 +441,32 @@
     "temperature_tolerance_c": 0.5,
     "minimum_solvents_per_drug": 4,
     "evaluated_drugs": 46,
-    "predicted_spearman_median": 0.863970588235294,
-    "predicted_spearman_q25": 0.6838286713286714,
-    "predicted_spearman_q75": 0.942857142857143,
+    "predicted_spearman_median": 0.8693181818181818,
+    "predicted_spearman_q25": 0.6669383037027274,
+    "predicted_spearman_q75": 0.937912087912088,
     "baseline_spearman_median": 0.4446428571428571,
     "baseline_spearman_q25": 0.19405594405594406,
     "baseline_spearman_q75": 0.6847402597402596,
     "predicted_top1_accuracy": 0.5434782608695652,
     "baseline_top1_accuracy": 0.2608695652173913,
-    "predicted_beats_baseline_fraction": 0.8043478260869565
+    "predicted_beats_baseline_fraction": 0.8260869565217391
   },
   "error_analysis": {
     "overall": {
-      "rmse": 0.8815245412759617,
-      "mae": 0.647416102263087,
-      "r2": 0.5229865073037947
+      "rmse": 0.8559001839074015,
+      "mae": 0.6249079935212903,
+      "r2": 0.5503153240829208
     },
     "disagreement_spearman": {
-      "statistic": 0.1740586779247349,
-      "p_value": 1.308602902461832e-13
+      "statistic": 0.09191298285318503,
+      "p_value": 0.00010075391984299118
     },
     "bootstrap_by_drug": {
       "n_bootstrap": 2000,
-      "rmse_ci_2_5": 0.7478543741399648,
-      "rmse_ci_97_5": 1.0294084849008307,
-      "mae_ci_2_5": 0.5519237696857775,
-      "mae_ci_97_5": 0.7595807751015766
+      "rmse_ci_2_5": 0.7250231937838778,
+      "rmse_ci_97_5": 0.9975946515311096,
+      "mae_ci_2_5": 0.5311589087482044,
+      "mae_ci_97_5": 0.7348304325452628
     },
     "nearest_similarity_quantiles": {
       "0": 0.06666666666666667,

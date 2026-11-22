@@ -31,11 +31,13 @@ def main() -> None:
     include_solvent_identity = True
     include_physchem_interactions = True
     include_temperature_interactions = True
+    include_maccs = True
     features, _ = build_feature_matrix(
         frame,
         include_solvent_identity=include_solvent_identity,
         include_physchem_interactions=include_physchem_interactions,
         include_temperature_interactions=include_temperature_interactions,
+        include_maccs=include_maccs,
     )
     target = frame["Solubility_log10"].to_numpy(dtype=np.float32)
 
@@ -77,9 +79,9 @@ def main() -> None:
     generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024)
     training_drug_fps = np.stack(
         [
-            generator.GetFingerprintAsNumPy(
-                Chem.MolFromSmiles(smiles)
-            ).astype(np.float32)
+            generator.GetFingerprintAsNumPy(Chem.MolFromSmiles(smiles)).astype(
+                np.float32
+            )
             for smiles in drug_smiles
         ]
     )
@@ -107,19 +109,22 @@ def main() -> None:
     )
     model_names = list(models)
     weights = np.full(len(model_names), 1.0 / len(model_names))
+    training_temperature_min = float(frame["Temperature"].min())
+    training_temperature_max = float(frame["Temperature"].max())
     manifest = build_manifest(
         {
             "clean_sha256": sha256_file(clean_path),
             "folds_sha256": sha256_file(folds_path),
             "training_rows": len(frame),
             "feature_count": features.shape[1],
+            "training_temperature_min_c": training_temperature_min,
+            "training_temperature_max_c": training_temperature_max,
             "drug_bits": 1024,
             "solvent_bits": 256,
             "include_solvent_identity": include_solvent_identity,
             "include_physchem_interactions": include_physchem_interactions,
-            "include_temperature_interactions": (
-                include_temperature_interactions
-            ),
+            "include_temperature_interactions": (include_temperature_interactions),
+            "include_maccs": include_maccs,
             "models": model_names,
             "model_weights": weights.tolist(),
             "ad_calibration": ad_metadata,
@@ -143,9 +148,8 @@ def main() -> None:
         "solvent_bits": 256,
         "include_solvent_identity": include_solvent_identity,
         "include_physchem_interactions": include_physchem_interactions,
-        "include_temperature_interactions": (
-            include_temperature_interactions
-        ),
+        "include_temperature_interactions": (include_temperature_interactions),
+        "include_maccs": include_maccs,
         "training_drug_smiles": drug_smiles,
         "training_drug_fps": training_drug_fps,
         "solvents": solvents,
@@ -153,6 +157,10 @@ def main() -> None:
         "ad_calibration": ad_metadata,
         "training_rows": len(frame),
         "feature_count": features.shape[1],
+        "temperature_range_c": {
+            "min": training_temperature_min,
+            "max": training_temperature_max,
+        },
         "cv_reference": {
             "rmse_mean": float(ensemble_reference["rmse"].mean()),
             "mae_mean": float(ensemble_reference["mae"].mean()),
@@ -170,6 +178,7 @@ def main() -> None:
         "models": model_names,
         "model_weights": bundle["model_weights"],
         "cv_reference": bundle["cv_reference"],
+        "temperature_range_c": bundle["temperature_range_c"],
         "applicability_domain": ad_metadata,
         "manifest": manifest,
     }

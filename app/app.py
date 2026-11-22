@@ -78,7 +78,7 @@ with st.sidebar:
         value=25.0,
         step=0.5,
     )
-    predict_clicked = st.button("Predict solubility", use_container_width=True)
+    st.button("Predict solubility", width="stretch")
     st.divider()
     st.caption(
         f"Model bundle: {bundle['training_rows']} records · "
@@ -90,9 +90,7 @@ with st.sidebar:
             f"Cross-validation: RMSE {cv_reference['rmse_mean']:.3f} · "
             f"MAE {cv_reference['mae_mean']:.3f}"
         )
-    st.caption(
-        "Predictions combine HistGradientBoosting, XGBoost, and Random Forest."
-    )
+    st.caption("Predictions combine HistGradientBoosting, XGBoost, and Random Forest.")
     st.caption(
         f"Applicability-domain threshold: "
         f"{bundle['ad_threshold']:.2f} nearest-drug Tanimoto."
@@ -106,7 +104,7 @@ if canonical is None:
 left, right = st.columns([1, 2])
 with left:
     st.subheader("Molecule")
-    st.image(molecule_png(canonical), use_column_width=True)
+    st.image(molecule_png(canonical), width="stretch")
     st.code(canonical, language=None)
 
 try:
@@ -122,31 +120,29 @@ selected = ranking.loc[ranking["Solvent"] == selected_solvent].iloc[0]
 
 with right:
     st.subheader("Prediction")
-    metric_columns = st.columns(4)
-    metric_columns[0].metric(
-        "log10 solubility", f"{selected['log10_solubility']:.3f}"
-    )
-    metric_columns[1].metric(
-        "Solubility", f"{selected['solubility_mol_l']:.4g} mol/L"
-    )
+    metric_columns = st.columns(3)
+    metric_columns[0].metric("log10 solubility", f"{selected['log10_solubility']:.3f}")
+    metric_columns[1].metric("Solubility", f"{selected['solubility_mol_l']:.4g} mol/L")
     metric_columns[2].metric(
         "Model disagreement", f"{selected['model_disagreement']:.3f}"
     )
     if "lower_90" in selected.index:
-        metric_columns[3].metric(
-            "90% interval",
+        st.metric(
+            "90% prediction interval",
             f"{selected['lower_90']:.2f} to {selected['upper_90']:.2f}",
         )
 
     if selected["applicability_status"] == "Within applicability domain":
         st.success(
             f"Supported by known chemistry (nearest-drug Tanimoto "
-            f"{selected['nearest_drug_similarity']:.2f})."
+            f"{selected['nearest_drug_similarity']:.2f}); temperature is "
+            "inside the training range."
         )
     else:
         st.warning(
-            f"Possible extrapolation: nearest-drug Tanimoto is only "
-            f"{selected['nearest_drug_similarity']:.2f}."
+            "Possible extrapolation: nearest-drug similarity is "
+            f"{selected['nearest_drug_similarity']:.2f}; temperature status "
+            f"is {selected['temperature_applicability_status'].lower()}."
         )
 
 st.subheader("Temperature profile")
@@ -162,12 +158,14 @@ curve = curve[["log10_solubility"]].rename(
 st.line_chart(curve, height=300)
 
 st.subheader("Solvent ranking")
+st.caption("Predictions cover the 49 solvents present in the training data.")
 display_columns = [
     "Solvent",
     "log10_solubility",
     "solubility_mol_l",
     "model_disagreement",
     "nearest_drug_similarity",
+    "temperature_applicability_status",
     "applicability_status",
 ]
 st.dataframe(
@@ -177,10 +175,11 @@ st.dataframe(
             "solubility_mol_l": "mol/L",
             "model_disagreement": "model disagreement",
             "nearest_drug_similarity": "nearest-drug similarity",
+            "temperature_applicability_status": "temperature range",
             "applicability_status": "status",
         }
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -218,7 +217,7 @@ if uploaded is not None:
     try:
         batch_input = pd.read_csv(uploaded, encoding="utf-8-sig")
         batch_output = predict_batch(bundle, batch_input)
-        st.dataframe(batch_output, use_container_width=True, hide_index=True)
+        st.dataframe(batch_output, width="stretch", hide_index=True)
         batch_buffer = io.StringIO()
         batch_output.to_csv(batch_buffer, index=False)
         st.download_button(

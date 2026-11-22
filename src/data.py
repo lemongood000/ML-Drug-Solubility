@@ -85,7 +85,12 @@ def canonicalize_smiles(smiles: str) -> str | None:
     return Chem.MolToSmiles(molecule, canonical=True, isomericSmiles=True)
 
 
-def prepare_dataset(raw: pd.DataFrame) -> tuple[pd.DataFrame, DataAudit]:
+def prepare_dataset(
+    raw: pd.DataFrame,
+    aggregate_method: str = "median",
+) -> tuple[pd.DataFrame, DataAudit]:
+    if aggregate_method not in {"median", "mean", "none"}:
+        raise ValueError("aggregate_method must be one of: median, mean, none")
     frame = raw.copy()
     source_rows = len(frame)
 
@@ -94,9 +99,7 @@ def prepare_dataset(raw: pd.DataFrame) -> tuple[pd.DataFrame, DataAudit]:
     exact_duplicates = before - len(frame)
 
     frame["drug_smiles_canonical"] = frame["Drug SMILES"].map(canonicalize_smiles)
-    frame["solvent_smiles_canonical"] = frame["Solvent SMILES"].map(
-        canonicalize_smiles
-    )
+    frame["solvent_smiles_canonical"] = frame["Solvent SMILES"].map(canonicalize_smiles)
     invalid_drug = int(frame["drug_smiles_canonical"].isna().sum())
     invalid_solvent = int(frame["solvent_smiles_canonical"].isna().sum())
     if invalid_drug or invalid_solvent:
@@ -111,30 +114,40 @@ def prepare_dataset(raw: pd.DataFrame) -> tuple[pd.DataFrame, DataAudit]:
         .agg(["size", "min", "max", "median"])
         .reset_index()
     )
-    condition_stats["target_range"] = (
-        condition_stats["max"] - condition_stats["min"]
-    )
+    condition_stats["target_range"] = condition_stats["max"] - condition_stats["min"]
     repeated = condition_stats["size"] > 1
     conflicts = repeated & (condition_stats["target_range"] > 1e-12)
     large_conflicts = repeated & (condition_stats["target_range"] > 0.05)
 
-    grouped = frame.groupby(GROUP_COLUMNS, dropna=False, sort=False).agg(
-        Drug=("Drug", "first"),
-        Solvent=("Solvent", "first"),
-        drug_smiles=("Drug SMILES", "first"),
-        solvent_smiles=("Solvent SMILES", "first"),
-        Solubility_log10=("Solubility_log10", "median"),
-        solubility_std=("Solubility_log10", "std"),
-        solubility_min=("Solubility_log10", "min"),
-        solubility_max=("Solubility_log10", "max"),
-        n_source_records=("Solubility_log10", "size"),
-        Solubility_Unit=("Solubility Unit", "first"),
-    )
-    clean = grouped.reset_index()
-    clean["solubility_std"] = clean["solubility_std"].fillna(0.0)
-    clean["solubility_range"] = (
-        clean["solubility_max"] - clean["solubility_min"]
-    )
+    if aggregate_method == "none":
+        clean = frame.rename(
+            columns={
+                "Drug SMILES": "drug_smiles",
+                "Solvent SMILES": "solvent_smiles",
+                "Solubility Unit": "Solubility_Unit",
+            }
+        ).copy()
+        clean["solubility_std"] = 0.0
+        clean["solubility_min"] = clean["Solubility_log10"]
+        clean["solubility_max"] = clean["Solubility_log10"]
+        clean["n_source_records"] = 1
+        clean["solubility_range"] = 0.0
+    else:
+        grouped = frame.groupby(GROUP_COLUMNS, dropna=False, sort=False).agg(
+            Drug=("Drug", "first"),
+            Solvent=("Solvent", "first"),
+            drug_smiles=("Drug SMILES", "first"),
+            solvent_smiles=("Solvent SMILES", "first"),
+            Solubility_log10=("Solubility_log10", aggregate_method),
+            solubility_std=("Solubility_log10", "std"),
+            solubility_min=("Solubility_log10", "min"),
+            solubility_max=("Solubility_log10", "max"),
+            n_source_records=("Solubility_log10", "size"),
+            Solubility_Unit=("Solubility Unit", "first"),
+        )
+        clean = grouped.reset_index()
+        clean["solubility_std"] = clean["solubility_std"].fillna(0.0)
+        clean["solubility_range"] = clean["solubility_max"] - clean["solubility_min"]
     clean = clean.sort_values(
         ["drug_smiles_canonical", "solvent_smiles_canonical", "Temperature"]
     ).reset_index(drop=True)
@@ -166,8 +179,7 @@ def prepare_dataset(raw: pd.DataFrame) -> tuple[pd.DataFrame, DataAudit]:
         drug_solvent_pairs=len(pair_counts),
         singleton_drug_solvent_pairs=int((pair_counts == 1).sum()),
         missing_values={
-            column: int(value)
-            for column, value in raw.isna().sum().items()
+            column: int(value) for column, value in raw.isna().sum().items()
         },
         solubility_unit_counts={
             str(key): int(value)

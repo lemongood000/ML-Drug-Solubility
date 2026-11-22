@@ -90,6 +90,7 @@ def main() -> None:
         include_solvent_identity=True,
         include_physchem_interactions=True,
         include_temperature_interactions=True,
+        include_maccs=True,
     )
     target = frame["Solubility_log10"].to_numpy(dtype=np.float32)
     sample_weight = 1.0 / (1.0 + frame["solubility_range"].to_numpy())
@@ -155,15 +156,10 @@ def main() -> None:
 
     metrics_frame = pd.DataFrame(metric_rows)
     metrics_frame.to_csv(RESULTS_DIR / "robustness_metrics.csv", index=False)
-    summary = (
-        metrics_frame.groupby("config")[
-            ["rmse", "mae", "r2", "conflict_rmse", "conflict_mae"]
-        ]
-        .agg(["mean", "std"])
-    )
-    summary.columns = [
-        f"{metric}_{stat}" for metric, stat in summary.columns
-    ]
+    summary = metrics_frame.groupby("config")[
+        ["rmse", "mae", "r2", "conflict_rmse", "conflict_mae"]
+    ].agg(["mean", "std"])
+    summary.columns = [f"{metric}_{stat}" for metric, stat in summary.columns]
     summary = summary.sort_values("rmse_mean").reset_index()
     summary.to_csv(RESULTS_DIR / "robustness_summary.csv", index=False)
 
@@ -172,7 +168,8 @@ def main() -> None:
             "experiment": "noise_weighting_and_robust_loss",
             "clean_sha256": sha256_file(RESULTS_DIR / "clean.csv"),
             "folds_sha256": sha256_file(RESULTS_DIR / "folds.json"),
-            "feature_config": "all_enhanced_features",
+            "feature_config": "all_enhanced_features_with_maccs",
+            "include_maccs": True,
             "configs": CONFIGS,
             "weight_formula": "clip(1/(1+solubility_range),0.1,1.0)",
         }

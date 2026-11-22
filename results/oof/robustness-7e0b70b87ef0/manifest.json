@@ -1,0 +1,84 @@
+{
+  "pipeline_version": "1.1.0",
+  "created_at": "2026-11-22T19:33:35+08:00",
+  "config_id": "7e0b70b87ef0",
+  "config": {
+    "experiment": "noise_weighting_and_robust_loss",
+    "clean_sha256": "0b8f1558f2aa42dbf7b7f193cbc7a9a333c75bc575a905830b6d4b3e6b80f2af",
+    "folds_sha256": "cb45180e4769f2d43840dc39d0c0afd60c3c5c212a85371d77c460fe96ce793a",
+    "feature_config": "all_enhanced_features_with_maccs",
+    "include_maccs": true,
+    "configs": [
+      {
+        "name": "xgb_mse",
+        "model": "xgb",
+        "loss": "mse",
+        "weighted": false
+      },
+      {
+        "name": "xgb_huber",
+        "model": "xgb",
+        "loss": "huber",
+        "weighted": false
+      },
+      {
+        "name": "xgb_weighted_mse",
+        "model": "xgb",
+        "loss": "mse",
+        "weighted": true
+      },
+      {
+        "name": "xgb_weighted_huber",
+        "model": "xgb",
+        "loss": "huber",
+        "weighted": true
+      },
+      {
+        "name": "hgb_mse",
+        "model": "hgb",
+        "loss": "squared_error",
+        "weighted": false
+      },
+      {
+        "name": "hgb_absolute",
+        "model": "hgb",
+        "loss": "absolute_error",
+        "weighted": false
+      },
+      {
+        "name": "hgb_weighted_mse",
+        "model": "hgb",
+        "loss": "squared_error",
+        "weighted": true
+      }
+    ],
+    "weight_formula": "clip(1/(1+solubility_range),0.1,1.0)"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.2",
+      "joblib": "1.4.2",
+      "scikit-learn": "1.5.1",
+      "rdkit": "2026.9.2",
+      "torch": "2.6.0+cpu",
+      "xgboost": "3.4.1",
+      "streamlit": "1.67.0",
+      "matplotlib": "3.9.2"
+    }
+  },
+  "models": [
+    "hgb_absolute",
+    "hgb_mse",
+    "hgb_weighted_mse",
+    "xgb_huber",
+    "xgb_mse",
+    "xgb_weighted_huber",
+    "xgb_weighted_mse"
+  ],
+  "seed": 42,
+  "prediction_rows": 12495,
+  "prediction_file": "predictions.csv"
+}

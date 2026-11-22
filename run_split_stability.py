@@ -22,6 +22,7 @@ SPLITS = [
     ("drug", 1729, SPLITS_DIR / "folds_drug_1729.json"),
     ("drug", 2026, SPLITS_DIR / "folds_drug_2026.json"),
     ("scaffold", 42, SPLITS_DIR / "folds_scaffold_42.json"),
+    ("solvent", 42, SPLITS_DIR / "folds_solvent_42.json"),
     ("pair", 42, SPLITS_DIR / "folds_pair_42.json"),
     ("random", 42, SPLITS_DIR / "folds_random_42.json"),
 ]
@@ -34,6 +35,7 @@ def main() -> None:
         include_solvent_identity=True,
         include_physchem_interactions=True,
         include_temperature_interactions=True,
+        include_maccs=True,
     )
     target = frame["Solubility_log10"].to_numpy(dtype=np.float32)
     summary_rows = []
@@ -92,6 +94,7 @@ def main() -> None:
                 "clean_sha256": sha256_file(RESULTS_DIR / "clean.csv"),
                 "folds_sha256": sha256_file(fold_path),
                 "feature_config": "all_enhanced_features",
+                "include_maccs": True,
                 "model": "xgboost",
                 "model_seed": 42,
             }

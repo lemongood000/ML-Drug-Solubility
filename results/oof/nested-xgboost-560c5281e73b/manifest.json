@@ -1,12 +1,13 @@
 {
   "pipeline_version": "1.1.0",
-  "created_at": "2026-11-19T14:32:53+08:00",
+  "created_at": "2026-11-22T19:18:35+08:00",
   "config_id": "560c5281e73b",
   "config": {
     "experiment": "nested_xgboost_tuning",
     "clean_sha256": "0b8f1558f2aa42dbf7b7f193cbc7a9a333c75bc575a905830b6d4b3e6b80f2af",
     "folds_sha256": "cb45180e4769f2d43840dc39d0c0afd60c3c5c212a85371d77c460fe96ce793a",
-    "feature_config": "all_enhanced_features",
+    "feature_config": "all_enhanced_features_with_maccs",
+    "include_maccs": true,
     "inner_folds": 3,
     "candidate_configs": [
       {
@@ -65,7 +66,7 @@
       "rdkit": "2026.9.2",
       "torch": "2.6.0+cpu",
       "xgboost": "3.4.1",
-      "streamlit": "1.37.1",
+      "streamlit": "1.67.0",
       "matplotlib": "3.9.2"
     }
   },

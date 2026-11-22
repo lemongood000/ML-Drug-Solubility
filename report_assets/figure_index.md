@@ -1,5 +1,7 @@
 # Figure Index
 
+- app_domain_warning.png
+- app_normal_prediction.png
 - applicability_threshold_sensitivity.png
 - conformal_coverage.png
 - disagreement_vs_error.png

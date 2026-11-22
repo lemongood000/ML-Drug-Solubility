@@ -64,6 +64,7 @@ def main() -> None:
         include_solvent_identity=True,
         include_physchem_interactions=True,
         include_temperature_interactions=True,
+        include_maccs=True,
     )
     target = frame["Solubility_log10"].to_numpy(dtype=np.float32)
     PREDICTIONS_DIR.mkdir(parents=True, exist_ok=True)
@@ -82,6 +83,7 @@ def main() -> None:
                 "solvent_identity": True,
                 "physchem_interactions": True,
                 "temperature_interactions": True,
+                "maccs": True,
             },
             "model_seed": 42,
             "xgboost_config": {
@@ -124,8 +126,7 @@ def main() -> None:
                 }
             )
             prediction_frame.to_csv(
-                PREDICTIONS_DIR
-                / f"enhanced_{model_name}_fold{fold}.csv",
+                PREDICTIONS_DIR / f"enhanced_{model_name}_fold{fold}.csv",
                 index=False,
                 encoding="utf-8-sig",
             )
@@ -140,9 +141,7 @@ def main() -> None:
             )
 
     metrics_frame = pd.DataFrame(rows)
-    metrics_frame.to_csv(
-        RESULTS_DIR / "enhanced_model_metrics.csv", index=False
-    )
+    metrics_frame.to_csv(RESULTS_DIR / "enhanced_model_metrics.csv", index=False)
     summary = (
         metrics_frame.groupby("model")[["rmse", "mae", "r2"]]
         .agg(["mean", "std"])

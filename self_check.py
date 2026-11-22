@@ -36,12 +36,9 @@ def main() -> None:
         drug_bits=bundle["drug_bits"],
         solvent_bits=bundle["solvent_bits"],
         include_solvent_identity=bundle["include_solvent_identity"],
-        include_physchem_interactions=bundle[
-            "include_physchem_interactions"
-        ],
-        include_temperature_interactions=bundle[
-            "include_temperature_interactions"
-        ],
+        include_physchem_interactions=bundle["include_physchem_interactions"],
+        include_temperature_interactions=bundle["include_temperature_interactions"],
+        include_maccs=bundle.get("include_maccs", False),
     )
     assert np.isfinite(features.to_numpy()).all()
     assert len(clean) == features.shape[0]
@@ -73,9 +70,7 @@ def main() -> None:
     assert len(ensemble) == 5
     assert np.isfinite(ensemble[["rmse", "mae", "r2"]]).all().all()
 
-    app = AppTest.from_file(
-        str(ROOT / "app" / "app.py"), default_timeout=90
-    ).run()
+    app = AppTest.from_file(str(ROOT / "app" / "app.py"), default_timeout=90).run()
     assert not app.exception, [item.value for item in app.exception]
     assert len(app.metric) >= 3
 

@@ -50,6 +50,14 @@ CONFIGS = [
         "include_solvent_identity": True,
         "include_physchem_interactions": True,
         "include_temperature_interactions": True,
+        "include_maccs": False,
+    },
+    {
+        "name": "all_enhanced_features_with_maccs",
+        "include_solvent_identity": True,
+        "include_physchem_interactions": True,
+        "include_temperature_interactions": True,
+        "include_maccs": True,
     },
 ]
 
@@ -65,12 +73,9 @@ def main() -> None:
         features, _ = build_feature_matrix(
             frame,
             include_solvent_identity=config["include_solvent_identity"],
-            include_physchem_interactions=config[
-                "include_physchem_interactions"
-            ],
-            include_temperature_interactions=config[
-                "include_temperature_interactions"
-            ],
+            include_physchem_interactions=config["include_physchem_interactions"],
+            include_temperature_interactions=config["include_temperature_interactions"],
+            include_maccs=config.get("include_maccs", False),
         )
         print(f"{config['name']}: {features.shape[1]} features", flush=True)
         current_rows = []
@@ -116,9 +121,7 @@ def main() -> None:
             }
         )
 
-    pd.DataFrame(rows).to_csv(
-        RESULTS_DIR / "feature_ablation_metrics.csv", index=False
-    )
+    pd.DataFrame(rows).to_csv(RESULTS_DIR / "feature_ablation_metrics.csv", index=False)
     summary = pd.DataFrame(summaries).sort_values("rmse_mean")
     summary.to_csv(RESULTS_DIR / "feature_ablation_summary.csv", index=False)
     print("\nFeature ablation summary")
